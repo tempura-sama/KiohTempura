@@ -3,8 +3,12 @@
   <ItemGroup>
     <ClCompile Include="..\src\kiou_main.cpp" />
     <ClCompile Include="..\src\usi.cpp" />
+    <ClCompile Include="..\src\board.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\usi.h" />
+    <ClInclude Include="..\src\common.h" />
+    <ClInclude Include="..\src\board.h" />
+    <ClInclude Include="..\src\utility.h" />
   </ItemGroup>
 </Project>

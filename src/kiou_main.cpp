@@ -1,5 +1,5 @@
 
-#include <iostream>
+#include "common.h"
 #include "usi.h"
 
 int main()
