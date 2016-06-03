@@ -3,44 +3,52 @@
 #include "board.h"
 #include "utility.h"
 
-shared_ptr<Board> Board::current_;
+shared_ptr<Board> Board::current_ = std::make_shared<Board>();
 
 Board::Board()
-	: Board("startpos")
+	: Board("startpos", "w", "-")
 {
 }
 
-Board::Board(string sfen)
+Board::Board(string sfen_board, string sfen_turn, string sfen_captured)
 {
-	if ( sfen == "startpos" ) {
-		sfen = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL";
+	if ( sfen_board == "startpos" ) {
+		sfen_board = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL";
 	}
 
 	memset(piece_pos_, 0, sizeof(piece_pos_));
 
-	// SFEN文字列の駒情報を、バイトボードに変換
+	// SFEN文字列の盤上情報を、バイトボードに変換
 	uint8 byte_board[9][9] = { 0, };
 	int i = 0, j = 0;  // i:筋, j:段
-	for ( auto c : sfen ) {
+	for ( auto c : sfen_board ) {
 		switch ( c ) {
 			// 歩兵
-			case 'P': case 'p': byte_board[i][j] = (c < 'a' ? 0 : 0x80) + PieceType_Pawn + 1; break;
+			case 'P': byte_board[i][j] = 0x80;
+			case 'p': byte_board[i][j] += PieceType_Pawn + 1; break;
 			// 香車
-			case 'L': case 'l': byte_board[i][j] = (c < 'a' ? 0 : 0x80) + PieceType_Lance + 1; break;
+			case 'L': byte_board[i][j] = 0x80;
+			case 'l': byte_board[i][j] += PieceType_Lance + 1; break;
 			// 桂馬
-			case 'N': case 'n': byte_board[i][j] = (c < 'a' ? 0 : 0x80) + PieceType_Knight + 1; break;
+			case 'N': byte_board[i][j] = 0x80;
+			case 'n': byte_board[i][j] += PieceType_Knight + 1; break;
 			// 銀将
-			case 'S': case 's': byte_board[i][j] = (c < 'a' ? 0 : 0x80) + PieceType_Silver + 1; break;
+			case 'S': byte_board[i][j] = 0x80;
+			case 's': byte_board[i][j] += PieceType_Silver + 1; break;
 			// 角行
-			case 'B': case 'b': byte_board[i][j] = (c < 'a' ? 0 : 0x80) + PieceType_Bishop + 1; break;
+			case 'B': byte_board[i][j] = 0x80;
+			case 'b': byte_board[i][j] += PieceType_Bishop + 1; break;
 			// 飛車
-			case 'R': case 'r': byte_board[i][j] = (c < 'a' ? 0 : 0x80) + PieceType_Rook + 1; break;
+			case 'R': byte_board[i][j] = 0x80;
+			case 'r': byte_board[i][j] += PieceType_Rook + 1; break;
 			// 金将
-			case 'G': case 'g': byte_board[i][j] = (c < 'a' ? 0 : 0x80) + PieceType_Gold + 1; break;
+			case 'G': byte_board[i][j] = 0x80;
+			case 'g': byte_board[i][j] += PieceType_Gold + 1; break;
 			// 金将
-			case 'K': case 'k': byte_board[i][j] = (c < 'a' ? 0 : 0x80) + PieceType_King + 1; break;
+			case 'K': byte_board[i][j] = 0x80;
+			case 'k': byte_board[i][j] += PieceType_King + 1; break;
 			// 成
-			case '+': byte_board[i][j - 1] += PieceType_Pro; break;
+			case '+': byte_board[i][j] += PieceType_Pro; break;
 			// 段区切り
 			case '/': i = -1; j++; break;
 			//
@@ -50,6 +58,30 @@ Board::Board(string sfen)
 				break;
 		}
 		i++;
+	}
+
+	// SFEN文字列の持駒情報を持駒ビットボードに変換
+	if ( !sfen_captured.empty() && sfen_captured != "-" ) {
+		for ( auto c : sfen_board ) {
+			switch ( c ) {
+				// 歩兵
+				case 'P': case 'p': ; break;
+				// 香車
+				case 'L': case 'l': ; break;
+				// 桂馬
+				case 'N': case 'n': ; break;
+				// 銀将
+				case 'S': case 's': ; break;
+				// 角行
+				case 'B': case 'b': ; break;
+				// 飛車
+				case 'R': case 'r': ; break;
+				// 金将
+				case 'G': case 'g': ; break;
+				// 金将
+				case 'K': case 'k': ; break;
+			}
+		}
 	}
 
 	// バイトボードをビットボードに変換

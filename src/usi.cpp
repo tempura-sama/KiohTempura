@@ -76,8 +76,6 @@ namespace Usi {
 	{
 		// 対局開始前のエンジン初期化処理を行い、対局準備が整ったら readyok を返す。
 
-		Engine::init();
-
 		output_usi(UsiCommand { "readyok" });
 	}
 

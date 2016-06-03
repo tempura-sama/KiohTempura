@@ -1,27 +1,28 @@
 #pragma once
 
 enum PieceType : uint32 {
-	PieceType_Pawn,
-	PieceType_Lance,
-	PieceType_Knight,
-	PieceType_Silver,
-	PieceType_Bishop,
-	PieceType_Rook,
-	PieceType_ProPawn,
-	PieceType_ProLance,
-	PieceType_ProKnight,
-	PieceType_ProSilver,
-	PieceType_Horse,
-	PieceType_Dragon,
-	PieceType_Gold,
-	PieceType_King,
-	PieceType_End,
-	PieceType_Pro             = PieceType_ProPawn,
-	PieceType_Begin           = PieceType_Pawn,
-	PieceType_UnPromotedBegin = PieceType_Pawn,
-	PieceType_UnPromotedEnd   = PieceType_ProPawn,
-	PieceType_PromotedBegin   = PieceType_ProPawn,
-	PieceType_PromotedEnd     = PieceType_Gold,
+	PieceType_Pawn,       // 歩兵
+	PieceType_Lance,      // 香車
+	PieceType_Knight,     // 桂馬
+	PieceType_Silver,     // 銀将
+	PieceType_Bishop,     // 角行
+	PieceType_Rook,       // 飛車
+	PieceType_Gold,       // 金将
+	PieceType_King,       // 王将
+	PieceType_ProPawn,    // 成歩
+	PieceType_ProLance,   // 成香
+	PieceType_ProKnight,  // 成桂
+	PieceType_ProSilver,  // 成銀
+	PieceType_Horse,      // 龍馬
+	PieceType_Dragon,     // 龍王
+	PieceType_Types,      // 駒の種類数
+	PieceType_Pro   = PieceType_ProPawn,     // 成駒
+	PieceType_Begin = PieceType_Pawn,        // イテレーション用(begin)
+	PieceType_End   = PieceType_Dragon + 1,  // イテレーション用(end)
+	PieceType_UnPromotedBegin = PieceType_Pawn,       // 成ではない駒のイテレーション用(begin)
+	PieceType_UnPromotedEnd   = PieceType_King + 1,   // 成ではない駒のイテレーション用(end)
+	PieceType_PromotedBegin   = PieceType_ProPawn,    // 成駒のイテレーション用(begin)
+	PieceType_PromotedEnd     = PieceType_Dragon + 1, // 成駒のイテレーション用(end)
 };
 
 template <typename T> inline size_t enum_size(T e) { return (size_t)T::Size; }
@@ -35,13 +36,13 @@ public:
 		return current_;
 	}
 
-	static void init() {
-		current_ = std::make_shared<Board>();
+	static void current(shared_ptr<Board> value) {
+		current_ = value;
 	}
 
 public:
 	Board();
-	Board(string sfen);
+	Board(string sfen_board, string sfen_turn, string sfen_captured);
 
 private:
 	static shared_ptr<Board> current_;
@@ -58,23 +59,14 @@ private:
 	// 8D [0:07][0:16][0:25][0:34][0:43][1:07][1:16][1:25][1:34]
 	// 9D [0:08][0:17][0:26][0:35][0:44][1:08][1:17][1:26][1:35]
 
-	// 駒の位置を表すBitBoard
-	// [0][] : 先手盤上
-	// [1][] : 後手盤上
-	// [2][] : 先手持駒
-	// [3][] : 後手持駒
-	// [][PieceType] : 駒番号
-	uint64 piece_pos_[4][PieceType_End][2];
+	// 盤上の駒情報を表すBitBoard
+	// [手番][駒番号(PeaceType)]
+	uint64 piece_pos_[4][PieceType_Types][2];
+
+	// 持駒情報
+	int piece_captured[2][PieceType_Gold + 1];
 
 };
 
 ostream& operator << (ostream& os, const Board& board);
 inline ostream& operator << (ostream& os, const shared_ptr<Board> board) { return operator << (os, *board); }
-
-struct Engine {
-
-	static void init()
-	{
-		Board::init();
-	}
-};
